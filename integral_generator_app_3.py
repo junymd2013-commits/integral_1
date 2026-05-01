@@ -246,8 +246,6 @@ if st.button("次の問題へ"):
     st.session_state.problem = generate_problem(mode, level)
     st.session_state.problem_start = time.time()
     st.session_state.answer_id += 1  # 解答欄を空欄にする
-    st.experimental_rerun()
-
 
 # アプリ全体の経過時間
 total_elapsed = time.time() - st.session_state.start_time
