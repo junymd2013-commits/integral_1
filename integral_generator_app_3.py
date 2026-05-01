@@ -165,6 +165,9 @@ if "correct" not in st.session_state:
 if "total" not in st.session_state:
     st.session_state.total = 0
 
+if "answer_id" not in st.session_state:
+    st.session_state.answer_id = 0
+
 if "prev_mode" not in st.session_state:
     st.session_state.prev_mode = mode
 if "prev_level" not in st.session_state:
@@ -179,7 +182,7 @@ if (
     st.session_state.problem = generate_problem(mode, level)
     st.session_state.prev_mode = mode
     st.session_state.prev_level = level
-    st.session_state.user_answer = ""  # ★ 空欄に戻す
+    st.session_state.answer_id += 1
     st.session_state.problem_start = time.time()
 
 params = st.session_state.problem
@@ -197,10 +200,10 @@ else:
 
 st.latex(rf"\int_{{{x1}}}^{{{x2}}} \left({expr}\right)\,dx")
 
-# 解答欄（text_input → 空欄スタートOK）
+# 解答欄（キーを動的に変更 → 毎回空欄）
 user = st.text_input(
     "答えを入力してください（整数）",
-    key="user_answer",
+    key=f"user_answer_{st.session_state.answer_id}",
     placeholder="ここに答えを入力"
 )
 
@@ -233,10 +236,10 @@ if st.button("採点する"):
     accuracy = st.session_state.correct / st.session_state.total * 100
     st.write(f"正答率：{accuracy:.1f}%")
 
-    # 次の問題へ自動で進む
+    # 次の問題へ
     st.session_state.problem = generate_problem(mode, level)
-    st.session_state.user_answer = ""  # ★ 空欄に戻す
     st.session_state.problem_start = time.time()
+    st.session_state.answer_id += 1  # ★ 解答欄を空欄にする（キー更新）
 
 # アプリ全体の経過時間
 total_elapsed = time.time() - st.session_state.start_time
