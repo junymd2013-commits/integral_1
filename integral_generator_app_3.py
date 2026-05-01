@@ -125,7 +125,6 @@ def plot_function_with_area(mode, params):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=xs, y=ys, mode="lines", name="f(x)"))
 
-    # 積分区間の塗りつぶし
     area_x = [x for x in xs if x1 <= x <= x2]
     start_idx = next(i for i, x in enumerate(xs) if x >= x1)
     end_idx = len(xs) - 1 - next(i for i, x in enumerate(reversed(xs)) if x <= x2)
@@ -180,7 +179,7 @@ if (
     st.session_state.problem = generate_problem(mode, level)
     st.session_state.prev_mode = mode
     st.session_state.prev_level = level
-    st.session_state.user_answer = None
+    st.session_state.user_answer = ""  # ★ 空欄に戻す
     st.session_state.problem_start = time.time()
 
 params = st.session_state.problem
@@ -198,20 +197,25 @@ else:
 
 st.latex(rf"\int_{{{x1}}}^{{{x2}}} \left({expr}\right)\,dx")
 
-# 解答欄（空欄スタート）
-user = st.number_input(
+# 解答欄（text_input → 空欄スタートOK）
+user = st.text_input(
     "答えを入力してください（整数）",
-    step=1,
     key="user_answer",
-    value=st.session_state.user_answer,
     placeholder="ここに答えを入力"
 )
 
 # 採点
 if st.button("採点する"):
+
     st.session_state.total += 1
 
-    if user == params["answer"]:
+    # 数値変換
+    if user.isdigit() or (user.startswith("-") and user[1:].isdigit()):
+        user_int = int(user)
+    else:
+        user_int = None
+
+    if user_int == params["answer"]:
         st.success("正解です！")
         st.session_state.correct += 1
     else:
@@ -231,7 +235,7 @@ if st.button("採点する"):
 
     # 次の問題へ自動で進む
     st.session_state.problem = generate_problem(mode, level)
-    st.session_state.user_answer = None
+    st.session_state.user_answer = ""  # ★ 空欄に戻す
     st.session_state.problem_start = time.time()
 
 # アプリ全体の経過時間
